@@ -8,13 +8,17 @@ DATA_URL = "https://storage.googleapis.com/workthisfucker/THEHISTORYORACLE.csv"
 df = pd.read_csv(DATA_URL, parse_dates=["ts"])
 
 MOOD_COLORS = {
-    "happy": "#00FF7F", "sad": "#001A33", "energetic": "#FFD700",
-    "chill": "#00CED1", "nostalgic": "#7B68EE", "angry": "#FF4500",
-    "romantic": "#FF69B4", "eclectic": "#39FF14"
+    "Sensual": "#FF69B4",
+    "Fiery": "#FF4500",
+    # Add more moods/colors as needed
 }
 GENRE_ACCENTS = {
-    "rock": "#FF1493", "hip-hop": "#1DB954", "electronic": "#00BFFF",
-    "pop": "#FFD700", "classical": "#8A2BE2"
+    "alt country": "#FF1493",
+    "americana": "#1DB954",
+    "singer-songwriter": "#FFD700",
+    "soft pop": "#00CED1",
+    "neo soul": "#8A2BE2",
+    # Add more genres/colors as needed
 }
 
 app = dash.Dash(__name__, requests_pathname_prefix="/api/app/")
@@ -27,14 +31,14 @@ app.layout = html.Div(
         html.P("A timeline-driven narrative of my musical journey, painted by moods, places, and genres.", style={"textAlign": "center"}),
         dcc.Dropdown(
             id="filter-mood",
-            options=[{"label": mood.title(), "value": mood} for mood in sorted(df["mood"].unique())],
+            options=[{"label": mood, "value": mood} for mood in sorted(df["gracenote_top_mood"].dropna().unique())],
             value=None,
             placeholder="Filter by Mood",
             style={"borderRadius": "15px", "backgroundColor": "#002d09", "color": "#39FF14"}
         ),
         dcc.Dropdown(
             id="filter-genre",
-            options=[{"label": genre.title(), "value": genre} for genre in sorted(df["genre"].unique())],
+            options=[{"label": genre, "value": genre} for genre in sorted(df["Genres"].dropna().unique())],
             value=None,
             placeholder="Filter by Genre",
             style={"marginTop": "10px", "borderRadius": "15px", "backgroundColor": "#002d09", "color": "#FFD700"}
@@ -51,11 +55,11 @@ app.layout = html.Div(
 def update_timeline(selected_mood, selected_genre):
     filtered_df = df.copy()
     if selected_mood:
-        filtered_df = filtered_df[filtered_df["mood"] == selected_mood]
+        filtered_df = filtered_df[filtered_df["gracenote_top_mood"] == selected_mood]
     if selected_genre:
-        filtered_df = filtered_df[filtered_df["genre"] == selected_genre]
-    color_map = filtered_df["mood"].map(MOOD_COLORS).fillna("#39FF14")
-    accent_map = filtered_df["genre"].map(GENRE_ACCENTS).fillna("#FFD700")
+        filtered_df = filtered_df[filtered_df["Genres"].str.contains(selected_genre, na=False)]
+    color_map = filtered_df["gracenote_top_mood"].map(MOOD_COLORS).fillna("#39FF14")
+    accent_map = filtered_df["Genres"].map(GENRE_ACCENTS).fillna("#FFD700")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=filtered_df["ts"],
@@ -64,10 +68,10 @@ def update_timeline(selected_mood, selected_genre):
         marker=dict(
             size=18,
             color=color_map,
-            line=dict(width=2, color=accent_map)
+            line=dict(width=2, color="#FFD700")
         ),
-        text=filtered_df["track"] + " - " + filtered_df["artist"],
-        hovertext=filtered_df.apply(lambda row: f"{row['ts'].strftime('%Y-%m-%d')}: {row['track']} by {row['artist']}<br>Genre: {row['genre']} | Mood: {row['mood']}<br>Place: {row.get('place','')}", axis=1),
+        text=filtered_df["track_name"] + " - " + filtered_df["artist_name"],
+        hovertext=filtered_df.apply(lambda row: f"{row['ts'].strftime('%Y-%m-%d')}: {row['track_name']} by {row['artist_name']}<br>Mood: {row['gracenote_top_mood']}<br>City: {row['city_name']}<br>Genres: {row['Genres']}", axis=1),
         hoverinfo="text",
         textposition="bottom center"
     ))
@@ -94,12 +98,11 @@ def show_track_details(clickData):
     idx = point["pointIndex"]
     row = df.iloc[idx]
     elements = [
-        html.H2(f"{row['track']} – {row['artist']}", style={"color": GENRE_ACCENTS.get(row['genre'], "#39FF14")}),
-        html.P(f"Date: {row['ts'].strftime('%Y-%m-%d')} | Genre: {row['genre']} | Mood: {row['mood']} | Place: {row.get('place','')}"),
-        html.Div(f"Feeling: {row['mood']}", style={"color": MOOD_COLORS.get(row['mood'], "#39FF14"), "fontWeight": "bold"}),
+        html.H2(f"{row['track_name']} – {row['artist_name']}", style={"color": "#39FF14"}),
+        html.P(f"Date: {row['ts'].strftime('%Y-%m-%d')} | Mood: {row['gracenote_top_mood']} | City: {row['city_name']} | Genres: {row['Genres']}"),
     ]
-    if "audio_url" in row and pd.notna(row["audio_url"]):
-        elements.append(html.Audio(src=row["audio_url"], controls=True, style={"width": "100%", "marginTop": "10px"}))
+    if "Track_preview_url" in row and pd.notna(row["Track_preview_url"]):
+        elements.append(html.Audio(src=row["Track_preview_url"], controls=True, style={"width": "100%", "marginTop": "10px"}))
     return html.Div(elements, style={"backgroundColor": "#142e19", "borderRadius": "20px", "padding": "1rem"})
 
 if __name__ == "__main__":
