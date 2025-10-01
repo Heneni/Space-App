@@ -1,43 +1,39 @@
-# 🚀 Space App
+# 🎶 The History Oracle
 
-An interactive dashboard developed with Dash by Plotly, providing **real-time** and historical insights on space exploration. The dashboard **autonomously updates multiple datasets through a fully automated pipeline of Google Cloud Functions and scrapers**, ensuring the information is always up-to-date without any manual intervention.
+This is a Dash app visualizing your personal music listening history as an interactive timeline narrative, styled with a green and black theme, rounded typography, and vibrant accent colors representing moods and genres. All data is loaded from your Google Cloud Storage CSV.
 
-🎥 **[Watch the demo video here](https://youtu.be/2rO7on8kaW4?si=nAtkzaNwbZTvvTnW)**  
+## Features
+- Timeline-driven narrative: music, dates, places, moods.
+- Interactive filtering by mood and genre.
+- Eclectic dynamic styling that changes with time, mood, and genre.
+- Single interactive interface (not separate charts).
 
-This is the **local deployment** branch. The project also supports **AWS** and **GCP deployments**, with the necessary configuration files available in their respective branches.
+## Local Development
 
-- **Local deployment:** `master` branch  
-- **AWS deployment:** `aws-deployment` branch  
-- **GCP deployment:** `gcp-deployment` branch  
+```bash
+pip install -r requirements.txt
+python api/app.py
+```
 
-## 🖥 Dashboard Preview
-<p align="center">
-<img src="img_readme/dashboard_01.png" alt="Dashboard Screenshot 1" width="600px" style="display: inline-block;">
-<img src="img_readme/dashboard_02.png" alt="Dashboard Screenshot 2" width="600px" style="display: inline-block;">
-</p>
+## Vercel Deployment
 
-## ⚙️ Automated Pipeline
+1. Clone the repo and commit the files above.
+2. Push to GitHub and link your repo to Vercel.
+3. Vercel will detect `vercel.json` and deploy `api/app.py` as a Python serverless function.
+4. Access your Dash app at `https://<your-vercel-deployment>/api/app`.
 
-The GCP deployment is fully automated via Cloud Run and Cloud Functions. The update workflow is as follows:
+## Testing
 
-<p align="center">
-    <img src="img_readme/pipeline.png" alt="Pipeline Overview" width="700px">
-</p>
+Run basic tests with:
+```bash
+pytest test_app.py
+```
 
-## 🔄 Data Sources
+## Data Source
 
-These datasets are maintained by three independent scrapers:
+- [THEHISTORYORACLE.csv](https://storage.googleapis.com/workthisfucker/THEHISTORYORACLE.csv) (8+ years of spotty listening data)
 
-- 🚀 [NextSpaceFlight Scraper](https://github.com/Tanguy9862/NextSpaceFlight-Scraper) (Past launches)  
-- 🛰 [Next Launch Scraper](https://github.com/Tanguy9862/Next-Launch-Scraper) (Upcoming launch)  
-- 🌍 [Wikipedia Space Scraper](https://github.com/Tanguy9862/Wikipedia-Space-Scraper) (Historical events)
+## Customization
 
-
-## 🛠️ Installation & Setup
-The system is designed for flexibility in deployment:
-- **Local Setup:** Clone the repository, install dependencies from `requirements.txt`, and run locally.
-- **Cloud Deployment:** For deploying on Google Cloud Platform (GCP) or Amazon Web Services (AWS), modify the `user_config.py` to fit your configurations. Ensure appropriate permissions are set.
-
-If you need to configure the application for a specific environment, check the corresponding branches:
-- **AWS Configuration**: Branch [`env/aws-config`](https://github.com/Tanguy9862/Space-App/tree/env/aws)
-- **GCP Configuration**: Branch [`env/gcp`](https://github.com/Tanguy9862/Space-App/tree/env/gcp)
+- Update accent colors and palettes in `api/app.py` as needed.
+- Add more tests to `test_app.py` for robust validation.
