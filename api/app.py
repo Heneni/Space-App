@@ -4,7 +4,7 @@ from dash import html, dcc, Input, Output
 import plotly.graph_objects as go
 
 DATA_URL = "https://storage.googleapis.com/workthisfucker/THEHISTORYORACLE.csv"
-df = pd.read_csv(DATA_URL, parse_dates=["date"])
+df = pd.read_csv(DATA_URL, parse_dates=["ts"])
 
 MOOD_COLORS = {
     "happy": "#00FF7F", "sad": "#001A33", "energetic": "#FFD700",
@@ -57,7 +57,7 @@ def update_timeline(selected_mood, selected_genre):
     accent_map = filtered_df["genre"].map(GENRE_ACCENTS).fillna("#FFD700")
     fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=filtered_df["date"],
+        x=filtered_df["ts"],
         y=[1]*len(filtered_df),
         mode="markers+text",
         marker=dict(
@@ -66,7 +66,7 @@ def update_timeline(selected_mood, selected_genre):
             line=dict(width=2, color=accent_map)
         ),
         text=filtered_df["track"] + " - " + filtered_df["artist"],
-        hovertext=filtered_df.apply(lambda row: f"{row['date'].strftime('%Y-%m-%d')}: {row['track']} by {row['artist']}<br>Genre: {row['genre']} | Mood: {row['mood']}<br>Place: {row.get('place','')}", axis=1),
+        hovertext=filtered_df.apply(lambda row: f"{row['ts'].strftime('%Y-%m-%d')}: {row['track']} by {row['artist']}<br>Genre: {row['genre']} | Mood: {row['mood']}<br>Place: {row.get('place','')}", axis=1),
         hoverinfo="text",
         textposition="bottom center"
     ))
@@ -94,8 +94,7 @@ def show_track_details(clickData):
     row = df.iloc[idx]
     elements = [
         html.H2(f"{row['track']} – {row['artist']}", style={"color": GENRE_ACCENTS.get(row['genre'], "#39FF14")}),
-        html.P(f"Date: {row['date'].strftime('%Y-%m-%d')} | Genre: {row['genre']} | Mood: {row['mood']} | Place: {row.get('place','')}",
-        ),
+        html.P(f"Date: {row['ts'].strftime('%Y-%m-%d')} | Genre: {row['genre']} | Mood: {row['mood']} | Place: {row.get('place','')}"),
         html.Div(f"Feeling: {row['mood']}", style={"color": MOOD_COLORS.get(row['mood'], "#39FF14"), "fontWeight": "bold"}),
     ]
     if "audio_url" in row and pd.notna(row["audio_url"]):
