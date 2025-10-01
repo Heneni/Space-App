@@ -2,6 +2,7 @@ import pandas as pd
 import dash
 from dash import html, dcc, Input, Output
 import plotly.graph_objects as go
+import os
 
 DATA_URL = "https://storage.googleapis.com/workthisfucker/THEHISTORYORACLE.csv"
 df = pd.read_csv(DATA_URL, parse_dates=["ts"])
@@ -102,4 +103,5 @@ def show_track_details(clickData):
     return html.Div(elements, style={"backgroundColor": "#142e19", "borderRadius": "20px", "padding": "1rem"})
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run_server(debug=False, host="0.0.0.0", port=port)
